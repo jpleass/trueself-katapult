@@ -8,15 +8,15 @@ import VueSocketIO from 'vue-socket.io';
 
 Vue.config.productionTip = false
 
-// Vue.use(new VueSocketIO({
-//     debug: true,
-//     secure: true,
-//     connection: 'http://192.168.178.164:8081',
-// }))
+Vue.use(new VueSocketIO({
+    debug: true,
+    secure: true,
+    connection: location.hostname+':8081',
+    forceNew: true
+}))
 
 Vue.use(VueTyperPlugin)
 
- 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -24,6 +24,3 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
-
-
-// Vue.use(VueSocketio, socketio('http://10.10.0.180:8081'));

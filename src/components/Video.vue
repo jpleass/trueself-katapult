@@ -1,12 +1,24 @@
 <template>
 
     <div id="videoWrapper">
+
+   
       <video 
-      class=""
+      v-show="orbBreathe"
       id='orbVideo' 
       v-bind:class="{ active: isActive, invert: isInvert }"   
       :src="srcLink"
-      autobuffer loop playsinline></video>
+      autobuffer preload="auto" loop playsinline></video>
+
+  
+      <video 
+      v-show="orbDivide"
+      id='orbVideoDivide' 
+      v-bind:class="{ active: isActive, invert: isInvert }"   
+      :src="srcLinkDivide"
+      autobuffer preload="auto" loop playsinline></video>
+
+
     </div>
 
 </template>
@@ -18,23 +30,46 @@
       return {
         isActive: true,
         isInvert: false,
-        srcLink: 'http://192.168.178.164:8888/katapult/src/assets/video/breathe.mp4'
+        orbBreathe: true,
+        orbDivide: false,
+        srcLink: 'http://'+location.hostname+':8888/katapult/src/assets/video/breathe.mp4',
+        srcLinkDivide: 'http://'+location.hostname+':8888/katapult/src/assets/video/divide.mp4'
       }
     },
     methods: {
       playVideo: function(){
           var orbVideoObject = document.getElementById('orbVideo');
-          orbVideoObject.play();
+          var orbVideoDivideObject = document.getElementById('orbVideoDivide');
+          if (this.orbBreathe) {
+            orbVideoObject.play();
+            orbVideoDivideObject.pause();
+          } else {
+            orbVideoObject.pause();
+            orbVideoDivideObject.play();
+          }
+      },
+      swapVideo: function(){
+          console.log('Orb Breathe:'+this.orbBreathe, this.orbDivide)
+          this.orbBreathe = !this.orbBreathe;
+          this.orbDivide = !this.orbDivide;
+          console.log('Orb Breathe:'+this.orbBreathe, this.orbDivide)
       },
       blurVideo: function(){
+        console.log('blurVideo')
         this.isActive = false
       },
       unblurVideo: function(){
         this.isActive = true
       },
-      invertVideo: function(){
-        this.isInvert = !this.isInvert
+      invertVideo: function(invertMode){
+        if (invertMode) {
+          this.isInvert = true;
+        } else {
+          this.isInvert = false;
+        }
+        console.log('invertingVideo', this.isInvert)
       }
+
     }
   }
 </script>
@@ -57,18 +92,22 @@ video {
   width: 720px;
   height:100%;
   transition: all 500ms;
-  filter: blur(20px);
   transform: scale(1.5);
   margin: auto;
+  filter: invert(0) blur(20px);
 }
 
 video.active {
-  filter: blur(0px);
-  transform: scale(1);
+  filter: blur(0px) invert(0);
+  transform: scale(1.1);
 }
 video.invert {
-  filter: invert(1);
-  animation: invertChange 1s linear infinite alternate forwards;
+  filter: invert(1) blur(20px);
+  /*animation: invertChange 1s linear infinite alternate forwards;*/
+}
+
+video.active.invert {
+  filter: invert(1) blur(0px);
 }
 
 @keyframes invertChange {

@@ -31,6 +31,7 @@
 	  position: fixed;
 	  bottom: 0;
 	  left:0;
+	  z-index: 99;
 	  color: #006CBB;
 	  padding: 0.5em 0em;
 	  width: 100%;
@@ -39,12 +40,10 @@
 	  justify-content: center;
 	  height: 100%;
 	  text-align: center;
-	  opacity: 0;
-	  transition: opacity 0ms;
+	  /*animation: pulse 0.75s infinite alternate;*/
 	}
-	#instructionsWrapper.show {
-	  transition: opacity 500ms;
-	  opacity: 1;
-	}
+
+
+
 
 </style>

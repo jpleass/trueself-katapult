@@ -1,38 +1,28 @@
 <template>
 	<div class="container">
-		<swiper :options="swiperOption" ref="mySwiper">
-		  <swiper-slide class="swiper-no-swiping" v-for="(longQuestion, index) in longQuestions" :key="index">
-			<h2 class="question">{{ longQuestion.question }}</h2>
-			<ul>
-				<li><div @click="answerSelect(0)" class="bubble">{{ longQuestion.curiosity }}</div></li>
-				<li><div  @click="answerSelect(1)" class="bubble">{{ longQuestion.resilience }}</div></li>
-				<li><div  @click="answerSelect(2)" class="bubble">{{ longQuestion.compassion }}</div></li>
-				<li><div @click="answerSelect(3)" class="bubble">{{ longQuestion.integrity }}</div></li>
-				<li><div  @click="answerSelect(4)" class="bubble">{{ longQuestion.empathy }}</div></li>
-			</ul>
-		  </swiper-slide>
-		  <swiper-slide class="swiper-no-swiping" v-for="(mediumQuestion, index) in mediumQuestions" :key="index + longQuestions.length">
-			<h2 class="question">{{ mediumQuestion.question }}</h2>
-			<ul>
-				<li><div @click="answerSelect(0)" class="bubble">{{ mediumQuestion.curiosity }}</div></li>
-				<li><div  @click="answerSelect(1)" class="bubble">{{ mediumQuestion.resilience }}</div></li>
-				<li><div  @click="answerSelect(2)" class="bubble">{{ mediumQuestion.compassion }}</div></li>
-				<li><div @click="answerSelect(3)" class="bubble">{{ mediumQuestion.integrity }}</div></li>
-				<li><div  @click="answerSelect(4)" class="bubble">{{ mediumQuestion.empathy }}</div></li>
-			</ul>
-		  </swiper-slide>
-		  <swiper-slide class="swiper-no-swiping" v-for="(shortQuestion, index) in shortQuestions" :key="index + (mediumQuestions.length + longQuestions.length)">
-			<h2 class="question">{{ shortQuestion.question }}</h2>
-			<ul>
-				<li><div @click="answerSelect(0)" class="bubble">{{ shortQuestion.curiosity }}</div></li>
-				<li><div  @click="answerSelect(1)" class="bubble">{{ shortQuestion.resilience }}</div></li>
-				<li><div  @click="answerSelect(2)" class="bubble">{{ shortQuestion.compassion }}</div></li>
-				<li><div @click="answerSelect(3)" class="bubble">{{ shortQuestion.integrity }}</div></li>
-				<li><div  @click="answerSelect(4)" class="bubble">{{ shortQuestion.empathy }}</div></li>
-			</ul>
+
+		<transition name="fade">
+			<div v-if="loading" id="loadingText">
+				Loading questions...
+			</div>
+		</transition>
+
+		<transition name="fade">
+		<swiper 
+		v-show="showTest"
+		:options="swiperOption" 
+		ref="mySwiper">
+		  <swiper-slide class="swiper-no-swiping" v-for="(Question, index) in questions" :key="index">
+			<h2 class="question">{{ Question.question }}</h2>
+				<Question 
+				v-bind:Question="Question"
+				v-bind:questionsActive="questionsActive"
+				v-on:answer-selected="onAnswerSelected"/>
 		  </swiper-slide>
 			<div class="swiper-pagination" slot="pagination"></div>
 		</swiper>
+		</transition>
+
 	</div>
 </template>
 
@@ -40,21 +30,25 @@
 <script>
 import 'swiper/dist/css/swiper.css'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
+import Question from '@/components/PT/Question.vue'
 import axios from 'axios'
 
 export default {
 	name: 'PersonalityTest',
 	components: {
 		swiper,
-		swiperSlide
+		swiperSlide,
+		Question
 	},
 	data() {
 		return {
+			showTest: true,
 			swiperOption: {
 				pagination: {
 					el: '.swiper-pagination'
 				}
 			},
+			questionsActive: false,
 			score: {
 				curiosity: 0,
 				resilience: 0,
@@ -63,66 +57,53 @@ export default {
 				empathy: 0
 			},
 			loading: true,
-			longQuestions: null,
-			mediumQuestions: null,
-			shortQuestions: null
+			questions: [],
 		}
 	},
 	methods: {
-		answerSelect: function(index){
-			switch(index) { 
-			   case 0: { 
-			      this.score.curiosity++
-			      break; 
-			   } 
-			   case 1: { 
-			      this.score.resilience++
-			      break; 
-			   }
-			   case 2: { 
-			      this.score.compassion++
-			      break;    
-			   } 
-			   case 3: { 
-			      this.score.integrity++
-			      break; 
-			   }
-			   case 4: { 
-			      this.score.empathy++
-			      break; 
-			   } 
-			   default: { 
-			      console.log("Invalid choice"); 
-			      break;              
-			   } 
-			} 
-			if (this.swiper.isEnd) {
-				console.log('End');
-				console.log(this.score);
-				this.$emit('test-end', this.score);
-			} else {
-				this.swiper.slideNext();
-			}
+		onAnswerSelected: function(index){
+			var $this = this;
+			$this.score[index]++
+			$this.questionsActive = false
+
+			setTimeout(function() {
+				if ($this.swiper.isEnd) {
+					$this.showTest = false;
+					$this.$emit('test-end', $this.score);
+				} else {
+						$this.swiper.slideNext();
+						$this.questionsActive = true
+				}
+			}, 500);
+
 		}
 	},
 	computed: {
       swiper() {
         return this.$refs.mySwiper.swiper
+
       }
     },
 	mounted() {
 		 axios
-	      .get('https://josephpleass.com/katapultDB/home.json')
+	      .get('https://josephpleass.com/katapultDB/home.json?nocache=' + (new Date()).getTime())
 	      .then(response => {
-	        this.longQuestions = response.data.longQuestions
-	        this.mediumQuestions = response.data.mediumQuestions
-	        this.shortQuestions = response.data.shortQuestions
+	        for (var i = response.data.longQuestions.length - 1; i >= 0; i--) {
+	        	this.questions.push(response.data.longQuestions[i])
+	        }
+	        for (var i = response.data.mediumQuestions.length - 1; i >= 0; i--) {
+	        	this.questions.push(response.data.mediumQuestions[i])
+	        }
+	        for (var i = response.data.shortQuestions.length - 1; i >= 0; i--) {
+	        	this.questions.push(response.data.shortQuestions[i])
+	        }
 	      })
 	      .catch(error => {
 	        console.log(error)
 	        this.errored = true
 	      })
 	      .finally(() => this.loading = false)
+	      this.questionsActive = true
 	}
 }
 </script>
@@ -131,7 +112,7 @@ export default {
 <style scoped>
 	
 .swiper-container {
-	position: fixed;
+	position: absolute;
 	top:0; left: 0;
 	height: 100%;
 	width: 100%;
@@ -139,7 +120,9 @@ export default {
 
 .swiper-slide {
 	color: #FF8458;
-	padding: 1em;
+	/*padding: 1em;*/
+	width: 100%;
+	height: 100%;
 	opacity: 0;
 	transition: opacity 500ms ease-in-out;
 	transition-delay: 500ms;
@@ -148,21 +131,6 @@ export default {
 	opacity: 1;
 }
 
-ul {
-	list-style-type: none;
-	padding-left: 0;
-	position: absolute;
-	bottom: 2em;
-	left: 0;
-	text-align: center;
-}
-
-li {
-	margin: 0 0.5em;
-	display: inline-block;
-}
-
-
 h2 {
 	font-size: 1em;
 	line-height: 1.4em;
@@ -170,22 +138,15 @@ h2 {
 	margin-bottom: 0;
 	font-weight: normal;
 	max-width: 80%;
+	padding: 1em;
 }
 
-.bubble {
-	color: white;
-	width: 8em;
-	font-size: 0.75em;
-	line-height: 1.3;
-	height: 8em;
-	padding: 1em;
-	background: orange;
-	border-radius: 50%;
-	padding-top: 1.35em;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
+#loadingText {
+  position: absolute;
+  top:0;left:0;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-	
 </style>

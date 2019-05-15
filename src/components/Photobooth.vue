@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <p>Capture Image: <input id="" type="file" accept="image/*" id="capture" capture="user"> 
+    <p>Capture Image: <input type="file" accept="image/*" id="capture" capture="user"> 
     <Timer v-on:timer-finished="capture" ref="timer" />
     <div @click="timerStart" id="videoWrapper">
       <video v-show="!imageTaken"  ref="video" id="video" width="720" height="720" autoplay></video>

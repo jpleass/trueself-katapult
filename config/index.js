@@ -4,46 +4,109 @@
 
 const path = require('path')
 const bodyParser = require("body-parser");
+const async = require('async');
+const writeFile = require('write');
 const app = require('express')()
       app.use(bodyParser.urlencoded({ extended:true }));
       app.use(bodyParser.json());
+      
 const server = require('http').createServer(app)
-      server.listen(8081);
-// const io = require('socket.io')
-// const ws = io.listen(server);
-// const printer = require("printer"),
-      // util = require('util');
+      server.listen(8081, function(){
+        console.log('Server is listening!')
+      });
 
-app.post('/upload',function(req,res){
-    console.log('upload');
-});
+const io = require('socket.io')
+const ws = io.listen(server);
 
 
-// ws.on('connection', function(socket){
-//   var socketId = socket.id;
-//   var clientIp = socket.request.connection.remoteAddress;
-//   console.log(clientIp);
-//   socket.on('sendPrint', function(){
-//     ws.emit('customEmitted');
-//     socket.emit('customEmitted');
-//     console.log('Send Print');
-//     console.log('default printer name: ' + (printer.getDefaultPrinterName() || 'is not defined on your computer'));
+var files = {}, 
+    struct = { 
+        name: null, 
+        type: null, 
+        size: 0, 
+        data: [], 
+        slice: 0, 
+    };
 
-//     var filename = __dirname + '/test.txt'
 
-//     // printer.printFile({
-//     //   filename:filename,
-//     //   success:function(jobID){
-//     //     console.log("sent to printer with ID: "+jobID);
-//     //   },
-//     //   error:function(err){
-//     //     console.log("Top");
-//     //   }
-//     // });
+ws.on('connection', function(socket){
+  var socketId = socket.id;
+  var clientIp = socket.request.connection.remoteAddress;
+  console.log(clientIp);
+
+  socket.on('Test', function(data) {
+    console.log(data);
+  });
+
+  socket.on('error', function (message) { 
+    alert( 'error in transport: ' + message );
+  });
+
+  socket.on('sendPrint', function(data){
+    console.log('Received Print');
+    console.log(data);
+
+    // if (!files[data.name]) { 
+    //     files[data.name] = Object.assign({}, struct, data); 
+    //     files[data.name].data = []; 
+    // }
+    
+    // //convert the ArrayBuffer to Buffer 
+    // // data.data = new Buffer(new Uint8Array(data.data)); 
+    // data.data= Buffer.from(new Uint8Array(data.data))
+    // //save the data 
+    // files[data.name].data.push(data.data); 
+    // files[data.name].slice++;
+
+    // console.log('Hey')
+
+
+    
+    // if (files[data.name].slice * 100000 >= files[data.name].size) { 
+    //   var fileBuffer = Buffer.concat(files[data.name].data); 
+
+    var newFileName = data['user'].replace(/\s+/g, '-').toLowerCase();
+
+      writeFile('images/print/'+newFileName+'.png', data.buffer, function(err){
+        if (err) {
+          console.log('Write ultimately failed', err);
+        }
+        console.log(`Written: ${data['results']}/${newFileName}.png`);
+      });
+        //do something with the data 
+
+    // } else { 
+    //     socket.emit('request slice upload', { 
+    //         currentSlice: files[data.name].slice 
+    //     }); 
+    // } 
+
+
+
+    // console.log('Received Image from' + data['user']);
+
+    // var buffer = Buffer.from(data['image'].split(",")[1], 'base64');
+    // var imageRaw = Buffer.from(data['imageRaw'].split(",")[1], 'base64');
+    
     
 
-//   });
-// });
+    // writeFile('images/3.5x5/'+newFileName+'.png', buffer, function(err){
+    //     if (err) {
+    //       console.log('Write ultimately failed', err);
+    //     }
+    //     console.log(`Written: ${data['results']}/${newFileName}.png`);
+    // })
+
+    // writeFile('images/'+data['results']+'/'+newFileName+'_RAW.png', imageRaw, function(err){
+    //     if (err) {
+    //       console.log('Write ultimately failed', err);
+    //       console.log(`Written: ${data['results']}/${newFileName}_RAW.png`);
+    //     }
+    // })
+
+
+  });
+});
 
 
 module.exports = {

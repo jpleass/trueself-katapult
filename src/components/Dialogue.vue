@@ -1,11 +1,10 @@
 <template>
 
 	<div  id="dialogueWrapper">
-		{{stateCount}}{{count}}
 		<vue-typer 
 		:text = message
 		:repeat='0'
-		:type-delay='70'
+		:type-delay='50'
 		caretAnimation='blink'
 		@typed='onTyped'
 		></vue-typer>
@@ -21,43 +20,45 @@ export default {
 	data () {
 		return {
 			count: 0,
-			stateCount: 0,
+			state: 'introduction',
 			message: ' ',
 			username: 'String',
 			canContinue: false,
-			dialogues: [
-				[
-					' ',
-					'Hey this is this.',
-					'And this is this.'
+			dialogues: {
+				introduction: [
+					// 'Welcome to your True Self. This is a self-\nreflective ritual that is required to obtain\nyour festival name badge.',
+					// "I am now going to decode your True Self\nNeural Lace. This reveals your exclusive neural\npotential, your unique trait.\n\nLet's begin...",
+					// 'Before we start, I need some details\nfrom you.',
+					'One'
 				],
-				[
-					' ',
-					'Whatever happens here.',
-					'I Hope this works'
+				personalityTest: [
+					// "Answer the following questions with honesty,\nI seek only to show you your true self."
+					'Two'
 				],
-				[
-					' ',
-					'The test is finished, now we are going to take your image'
+				photoboothUpload: [
+					// "Gaze upon me and focus on your strengths...\nI will capture your image."
+					'Three'
 				],
-				[
-					' ',
-					'You took the image, thanks for that.',
-					'Now we are going to start your true self thingy.'
+				calculating: [
+					'Are you ready to discover your true self?',
+				],
+				map: [
+					"Your True Self will be revealed at the photo\nkiosk located in the map below.\n\nEnjoy the festival!",
+
 				]
-			]
+			}
 		}
 	},
 	methods: {
 		changeMessage: function() {
 
-			if (this.canContinue && this.count < this.dialogues[this.stateCount].length-1) {
-				this.count++
-				this.message = this.dialogues[this.stateCount][this.count];
+			if (this.canContinue && this.count < this.dialogues[this.state].length) {
+				this.message = this.dialogues[this.state][this.count];
 				this.canContinue = false
+				this.count++
 			}
 
-			if (this.canContinue && this.count == this.dialogues[this.stateCount].length-1) {
+			if (this.canContinue && this.count == this.dialogues[this.state].length) {
 				this.$emit('dialogue-finished')
 				this.isDialogue = false
 			}
@@ -66,7 +67,7 @@ export default {
 		onTyped: function(typedString){
 			this.$emit('typed-finished');
 			this.canContinue = true
-			if (this.count == this.dialogues[this.stateCount].length-1) {
+			if (this.count == this.dialogues[this.state].length-1) {
 				this.canContinue = true
 			}
 		}
@@ -76,15 +77,40 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 
 #dialogueWrapper {
 	position: relative;
 	z-index: 99;
 	padding: 1em;
 	text-align: left;
-	opacity: 1;
-	transition: opacity 500ms;
+}
+
+.vue-typer .custom.char.typed {
+  color: #FF8458;
+}
+
+.vue-typer .custom.caret {
+  width: 0.125em;
+  background-color: #FF8458!important;
+}
+.vue-typer .custom.caret.pre-type {
+  width: 0.125em;
+  background-color: #FF8458!important;
+}
+.vue-typer .custom.caret.idle {
+  width: 0.125em;
+  background-color: #FF8458!important;
+}
+.vue-typer .custom.caret.typing {
+  width: 0.125em;
+  background-color: #FF8458;
+}
+
+.vue-typer .custom.caret.complete {
+  width: 0.125em;
+  display: inline-block;
+  background-color: #FF8458;
 }
 
 </style>
