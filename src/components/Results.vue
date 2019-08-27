@@ -38,6 +38,7 @@ export default {
       showResults: false,
       showImage: false,
       loadCount: 0,
+      canvasDataURL: '',
       quest: '',
       imageData: '',
       results: {
@@ -148,20 +149,31 @@ export default {
       var ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       grayScale(ctx, canvas)
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.drawImage(this.images.multiply, 0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = 'normal';
-      ctx.drawImage(this.images.normal, 0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = 'difference';
-      ctx.drawImage(this.images.difference, 0, 0, canvas.width, canvas.height);
-      
-      this.imageData = canvas.toDataURL();
-      
+
       var $this = this;
-      this.images.canvasImage.src = canvas.toDataURL();
-      this.images.canvasImage.onload = function(){
-        $this.renderPrint(responseData)
+      canvas.toBlob(function(blob){
+        // $this.$emit('image-generated', [$this.imageData, blob]);
+        continueCanvas($this);
+      }, 'image/jpeg', 1);
+
+      function continueCanvas(vue){
+       
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.drawImage(vue.images.multiply, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'normal';
+        ctx.drawImage(vue.images.normal, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'difference';
+        ctx.drawImage(vue.images.difference, 0, 0, canvas.width, canvas.height);
+        vue.imageData = canvas.toDataURL();
+        vue.images.canvasImage.src = canvas.toDataURL();
+        vue.images.canvasImage.onload = function(){
+          vue.renderPrint(responseData)
+        }
       }
+
+      
+      
+      
     },
     renderPrint: function(responseData){
       var $this = this;
@@ -241,13 +253,18 @@ export default {
               }
 
               var $this = this;
+              // this.canvasDataURL = canvas.toDataURL('image/png');
+
               canvas.toBlob(function(blob){
-                $this.$emit('image-generated', [$this.imageData, blob]);
-              }, 'image/jpeg', 0.95); // JPEG at 95% quality
+                var url = window.URL.createObjectURL(blob);
+                $this.canvasDataURL = url;
+                localStorage.setItem("lastImage", url);
+                $this.$emit('image-generated', url);
+              }, 'image/png', 1); // JPEG at 95% quality
               setTimeout(function() {
                 
                 $this.showImage = true
-              }, 5000);
+              }, 1000);
 
             }
           })
@@ -333,7 +350,13 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
+#downloadButton {
+  font-size: 2em;
+  position: fixed;
+  z-index: 9999999;
+  width: 100%;
+  text-align: center;
+}
 img {
   max-width: 100%;
 }

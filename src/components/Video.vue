@@ -32,8 +32,10 @@
         isInvert: false,
         orbBreathe: true,
         orbDivide: false,
-        srcLink: 'http://'+location.hostname+':8888/katapult/src/assets/video/breathe.mp4',
-        srcLinkDivide: 'http://'+location.hostname+':8888/katapult/src/assets/video/divide.mp4'
+        // srcLink: 'http://'+location.hostname+':8888/katapult/src/assets/video/breathe.mp4',
+        srcLink: '#',
+        srcLinkDivide: '#'
+        // srcLinkDivide: 'http://'+location.hostname+':8888/katapult/src/assets/video/divide.mp4'
       }
     },
     methods: {

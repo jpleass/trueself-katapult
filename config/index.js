@@ -43,29 +43,9 @@ ws.on('connection', function(socket){
   });
 
   socket.on('sendPrint', function(data){
+    var newFileName = data['user'].replace(/\s+/g, '-').toLowerCase();
     console.log('Received Print');
     console.log(data);
-
-    // if (!files[data.name]) { 
-    //     files[data.name] = Object.assign({}, struct, data); 
-    //     files[data.name].data = []; 
-    // }
-    
-    // //convert the ArrayBuffer to Buffer 
-    // // data.data = new Buffer(new Uint8Array(data.data)); 
-    // data.data= Buffer.from(new Uint8Array(data.data))
-    // //save the data 
-    // files[data.name].data.push(data.data); 
-    // files[data.name].slice++;
-
-    // console.log('Hey')
-
-
-    
-    // if (files[data.name].slice * 100000 >= files[data.name].size) { 
-    //   var fileBuffer = Buffer.concat(files[data.name].data); 
-
-    var newFileName = data['user'].replace(/\s+/g, '-').toLowerCase();
 
       writeFile('images/print/'+newFileName+'.png', data.buffer, function(err){
         if (err) {
@@ -73,39 +53,11 @@ ws.on('connection', function(socket){
         }
         console.log(`Written: ${data['results']}/${newFileName}.png`);
       });
-        //do something with the data 
-
-    // } else { 
-    //     socket.emit('request slice upload', { 
-    //         currentSlice: files[data.name].slice 
-    //     }); 
-    // } 
-
-
-
-    // console.log('Received Image from' + data['user']);
-
-    // var buffer = Buffer.from(data['image'].split(",")[1], 'base64');
-    // var imageRaw = Buffer.from(data['imageRaw'].split(",")[1], 'base64');
-    
-    
-
-    // writeFile('images/3.5x5/'+newFileName+'.png', buffer, function(err){
-    //     if (err) {
-    //       console.log('Write ultimately failed', err);
-    //     }
-    //     console.log(`Written: ${data['results']}/${newFileName}.png`);
-    // })
-
-    // writeFile('images/'+data['results']+'/'+newFileName+'_RAW.png', imageRaw, function(err){
-    //     if (err) {
-    //       console.log('Write ultimately failed', err);
-    //       console.log(`Written: ${data['results']}/${newFileName}_RAW.png`);
-    //     }
-    // })
-
-
+      
   });
+
+
+
 });
 
 

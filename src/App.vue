@@ -1,5 +1,9 @@
 <template>
   <div id="app">
+
+    <div id="resetButton">
+      <a href="#" @click="resetApp"><i class="fas fa-sync-alt"></i></a>
+    </div>
     <transition name="fade">
     <div v-if="!appStart" id="nextCustomer">
       Waiting for next user...
@@ -65,6 +69,7 @@
     <transition name="fade">
       <Map
       v-if="showMap"
+      v-bind:imageLink="imageLink"
       v-on:exit-state="onExitMap"
       ref="map" />
      </transition>
@@ -102,7 +107,7 @@ export default {
     Instructions
   },
   timers: {
-    startApp: { time: 5000, autostart: true },
+    startApp: { time: 2000, autostart: true },
   },
   data() {
     return {
@@ -113,6 +118,7 @@ export default {
       appStart: false,
       useFakeResults: false,
       isMiniMode: false,
+      imageLink: '',
 
       // Shows
       showInstructions: false,
@@ -277,16 +283,16 @@ export default {
     onExitResults: function(){
       console.log('Hide Results')
       var $this = this;
+      $this.showDialogue = false
+      $this.$refs.video.invertVideo(false);
 
       setTimeout(function() {
-        $this.$refs.video.invertVideo(false);
         $this.$refs.dialogue.count = 0
         $this.$refs.dialogue.state = 'map'
-        $this.showDialogue = true
-        $this.$refs.dialogue.changeMessage();
+        // $this.$refs.dialogue.changeMessage();
         $this.showResults = false;
         $this.showMap = true
-      }, 1000);
+      }, 2000);
 
     },
     onExitMap: function(){
@@ -307,51 +313,9 @@ export default {
       // this.$refs.dialogue.changeMessage();
     },
     onImageGenerated: function(image){
-      this.generatedImage = image;
+      this.imageLink = image;
       this.showCalculating = false;
       this.$refs.video.blurVideo();
-      console.log('Video Should Blur Now') 
-      var imageData = {
-        image: image[1],
-        imageRaw: image[0],
-        results: this.testResult,
-        user: this.user.fullname
-      }
-      // var image = image;
-      // console.log(image)
-      // console.log(image[1])
-
-
-    
-      //   var fileReader = new FileReader(), 
-      //       slice = image[1].slice(0, 100000); 
-
-      //   fileReader.readAsArrayBuffer(slice); 
-      //   fileReader.onload = (evt) => {
-      //       var arrayBuffer = fileReader.result; 
-      //       console.log(image[1].size);
-      //       this.$socket.emit('sendPrint', { 
-      //           name: this.user.fullname, 
-      //           type: image[1].type, 
-      //           size: parseInt(image[1].size), 
-      //           data: arrayBuffer 
-      //       }); 
-      //   }
-
-      //   this.$socket.on('request slice upload', (data) => { 
-      //     console.log('Hey');
-      //       var place = data.currentSlice * 100000, 
-      //           slice = file.slice(place, place + Math.min(100000, file.size - place));
-      //       fileReader.readAsArrayBuffer(slice); 
-      //   });
-
-      this.$socket.emit('Test', 'About to Send Image Payload');
-      this.$socket.emit('sendPrint', { 
-        image: true, 
-        buffer: image[1], 
-        results: this.testResult,
-        user: this.user.fullname 
-      })
   
     },
     restart: function(){
@@ -367,6 +331,9 @@ export default {
       this.$refs.video.swapVideo();
       this.$refs.video.playVideo();
       this.$timer.start('startApp')
+    },
+    resetApp: function(){
+      document.location.reload(false)
     }
   }
 }
@@ -409,6 +376,21 @@ body {
   display: block;
   height: 100%;
 
+}
+
+#resetButton {
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  font-size: 0.8em;
+  z-index: 9999999;
+}
+
+#resetButton a {
+  display: block;
+  margin-top: 0.5em;
+  color: white;
+  text-decoration: none;
 }
 
 #nextCustomer {

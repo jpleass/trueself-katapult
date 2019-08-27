@@ -4,7 +4,7 @@
 		<vue-typer 
 		:text = message
 		:repeat='0'
-		:type-delay='50'
+		:type-delay='15'
 		caretAnimation='blink'
 		@typed='onTyped'
 		></vue-typer>
@@ -26,18 +26,18 @@ export default {
 			canContinue: false,
 			dialogues: {
 				introduction: [
-					// 'Welcome to your True Self. This is a self-\nreflective ritual that is required to obtain\nyour festival name badge.',
-					// "I am now going to decode your True Self\nNeural Lace. This reveals your exclusive neural\npotential, your unique trait.\n\nLet's begin...",
-					// 'Before we start, I need some details\nfrom you.',
-					'One'
+					'Welcome to your True Self. This is a self-\nreflective ritual that is required to obtain\nyour festival name badge.',
+					"I am now going to decode your True Self\nNeural Lace. This reveals your exclusive neural\npotential, your unique trait.\n\nLet's begin...",
+					'Before we start, I need some details\nfrom you.',
+					// 'One'
 				],
 				personalityTest: [
-					// "Answer the following questions with honesty,\nI seek only to show you your true self."
-					'Two'
+					"Answer the following questions with honesty,\nI seek only to show you your true self."
+					// 'Two'
 				],
 				photoboothUpload: [
-					// "Gaze upon me and focus on your strengths...\nI will capture your image."
-					'Three'
+					"Gaze upon me and focus on your strengths...\nI will capture your image."
+					// 'Three'
 				],
 				calculating: [
 					'Are you ready to discover your true self?',
